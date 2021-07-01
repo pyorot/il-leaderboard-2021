@@ -4,10 +4,11 @@
 // whole sheet; this + the unreliability of the individual API calls means we rely on verifying it worked at the
 // end using the verifyProtections function.
 
-// set protection on a single row based on directory lookup of name and sheet mods (doesn't work for columns)
+// set protection on a single row/column based on directory lookup of name and sheet mods
 function setProtectionRow() {
-  let sheetName = "ILs"
-  let row = 17
+  let sheetName = "Misc ILs"
+  let index = 47              // row/column number (first row/column = 1; convert letters to number for columns)
+  let transposed = false       // false if players have rows; true if players have columns
 
   let [users, mods] = getDirectory(sheetName)
 
@@ -15,13 +16,15 @@ function setProtectionRow() {
   let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName)
   let target
   for (let p of sheet.getProtections(SpreadsheetApp.ProtectionType.RANGE)) {
-    if (p.getRange().getRow() == row) {
+    if ((!transposed ? p.getRange().getRow() : p.getRange().getColumn()) == index) {
       target = p
       break
     }
   }
   if (!target) {
-    let series = sheet.getRange(row, 1, 1, sheet.getMaxColumns())
+    let series = !transposed ?
+      sheet.getRange(index, 1, 1, sheet.getMaxColumns()) :
+      sheet.getRange(1, index, sheet.getMaxRows(), 1)
     target = series.protect().setDescription('series - ' + series.getCell(1,1).getValue())
   }
   console.log('got protected range', target.getDescription())
@@ -42,24 +45,26 @@ function setProtectionRow() {
   console.log("editors:\n", target.getEditors().map(user => user.getEmail()))
 }
 
-// adds one person to every protected range in a sheet
+// adds/removes one person to every protected range in a sheet
 function addMod() {
-  let sheetName = "Bingo ILs"
+  let sheetName = "Any% Best World Segments"
   let email = ""
+  let remove = false // swaps to removing instead of adding
 
   let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName)
   for (let p of sheet.getProtections(SpreadsheetApp.ProtectionType.RANGE)) {
     if (p.canEdit()) {
-      p.addEditor(email)
+      remove ? p.removeEditor(email) : p.addEditor(email)
+      console.log(remove ? "removed:" : "added:", p.getDescription())
     } else {
-      console.log("error: couldn't edit protected range", protection.getDescription())
+      console.log("error: couldn't edit protected range", p.getDescription())
     }
   }
 }
 
 // reassigning all protections is slow and can get messed up on timeout; gotta verify
 function verifyProtections() {
-  let sheetName = "Bingo ILs"
+  let sheetName = ""
 
   let [users, mods] = getDirectory(sheetName)
   // iterate thru protections
@@ -80,7 +85,7 @@ function verifyProtections() {
       // check everyone is mod or player
       for (let editor of editors) {
         if (!mods.includes(editor) && !(editor == player)) {
-          return console.log("failed: unknown editor on", description, ":", editor)
+          return console.log("failed: unknown editor on", description, ":", editor, "; expected mod or ", player)
         }
       }
       // check all mods are present
@@ -142,9 +147,9 @@ function getDirectory(sheetName) {
 // this only needs to be run when sheet dimensions are changed
 // if the script goes past the end of data (e.g. cos crap at end of Bingo sheet), click Stop
 function initProtections() {
-  let sheetName = ""
+  let sheetName = "RTA Strat ILs"
   let firstIndex = 4     // number of first row/column with data
-  let transposed = false // false = row per player; true = column per player
+  let transposed = true  // false = row per player; true = column per player
 
   let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName)
   for (let p of sheet.getProtections(SpreadsheetApp.ProtectionType.RANGE)) {
@@ -174,7 +179,7 @@ function initProtections() {
 
 // takes all existing protected ranges and assigns the correct user/mods to them based on the backend directory
 function reassignProtections() {
-  let sheetName = "120 ILs"
+  let sheetName = "RTA Strat ILs"
 
   let [users, mods] = getDirectory(sheetName)
   // assign email addresses to ranges
