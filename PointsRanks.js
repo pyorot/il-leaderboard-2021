@@ -48,9 +48,9 @@ function calcPointsAndRanks(rangeValues, rangeLinks, reversed) {
 // updates names and clears body of backend sheets 
 function updateNamesAndClear() {
   let names = sheet.getRange(...toRC(P_START, 1, P, 1)).getDisplayValues()  // get player names from main sheet
-  for (let sheetBackend of [sheetP, sheetR]) {
-    sheetBackend.getRange(...toRC(2, 1, P, 1)).setValues(names)             // paste names into backend
-    sheetBackend.getRange(...toRC(2, L_START, P, L - L_START)).clear()      // clear body
+  for (let sh of [sheetP, sheetR]) {
+    sh.getRange(...toRC(2, 1, P, 1)).setValues(names)                       // paste names into backend
+    sh.getRange(...toRC(2, L_START, sh.getLastRow()-1, sh.getLastColumn()+1-L_START)).clear()   // clear body
   }
 }
 

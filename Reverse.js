@@ -2,11 +2,11 @@ function isReverseLevel(l) {
   switch (sheetName) {
     case 'ILs':
     case '120 ILs':
-      let world = levels[0][l]
-      for (let k = l; world === ""; k--, world = levels[0][k]) {} // seek backwards in merged cell to get value
-      let episode = levels[1][l]
-      for (let k = l; episode === ""; k--, episode = levels[1][k]) {}
-      let sublevel = levels[2][l]
+      let world = levelHeader[0][l]
+      for (let k = l; world === ""; k--, world = levelHeader[0][k]) {} // seek backwards in merged cell to get value
+      let episode = levelHeader[1][l]
+      for (let k = l; episode === ""; k--, episode = levelHeader[1][k]) {}
+      let sublevel = levelHeader[2][l]
       
       console.log(world, episode, sublevel)
       
@@ -23,15 +23,18 @@ function isReverseLevel(l) {
       }
 
     case 'RTA Strat ILs':
-      let shine = levels[l][0]
-      for (let k = l; shine === ""; k--, shine = levels[k][0]) {} // seek upwards to get non-empty row value
-      let names =  ['Red Coins on the Water', 'Red Coins in the Hotel', 'Piantas in Need',
-                    'Airstrip Reds', 'Box Game 1', 'Box Game 2']
-      return shine.trim().substring(0,4) == "Reds" || names.includes(shine.trim())
+      let shine = levelHeader[l][0]
+      for (let k = l; shine === ""; k--, shine = levelHeader[k][0]) {} // seek upwards to get non-empty row value
+      shine = shine.trim()
+      let strat = levelHeader[l][1]; strat = strat.substring(strat.indexOf(']')+2).trim()
+      return shine.substring(0,4) == "Reds"
+        || ['Airstrip Reds (+ 99 coins)', 'Box Game 1', 'Box Game 2'].includes(shine)
+        || (shine == 'Episode 6' && ['boomer route', 'normal route', 'no RNG spam-spray unlock'].includes(strat))
+        || (shine == 'Episode 8' && strat == 'Paper route')
     
-    case 'Bingo ILs':
-      let group = levels[0][l]
-      for (let k = l; group === ""; k--, group = levels[0][k]) {} // seek backwards in merged cell to get value
+    case 'Misc ILs':
+      let group = levelHeader[0][l]
+      for (let k = l; group === ""; k--, group = levelHeader[0][k]) {} // seek backwards in merged cell to get value
       return group == "Hidden Reds Hoverless"
     
     default: throw `unknown sheet: "${sheetName}"`

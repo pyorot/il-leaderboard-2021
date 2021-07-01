@@ -15,7 +15,7 @@ const permDirID      = '1jr0oWEFjt8wDpYdznRwQBW0Gx37aAhjYQTZWARXhsZE' // user di
 var sheet                       // sheet object representing the edited sheet
 var sheetName                   // sheet name
 var sheetP, sheetR              // sheet object representing the backend points+ranks sheets for the edited sheet
-var levels                      // sheet levels header range, used by isReverseLevel (see Reverse.gs)
+var levelHeader                 // sheet levels header range, used by isReverseLevel (see Reverse.gs)
 var TPOSE                       // if false, players (A) are rows and levels (B) are columns; opposite if true
 var P_START, P                  // players -- rsp. row (col) number of first player, and number of players
 var L_START, L                  // levels -- rsp. col (row) number of first level, and number of levels
@@ -26,18 +26,18 @@ function setGlobals(sheetName) {
   // 1. settings
   switch (sheetName) { // manual settings
     case 'ILs':
-      P_START = 4;  L_START = 8;  TPOSE = false;  ALLOW0DP = false;  ALLOW1DP = true;   ALLOWXX = false;  break
+      P_START = 4;  L_START = 8;  TPOSE = false;  ALLOW0DP = false;  ALLOW1DP = false;  ALLOWXX = false;  break
     case '120 ILs':
-      P_START = 4;  L_START = 8;  TPOSE = false;  ALLOW0DP = false;  ALLOW1DP = true;   ALLOWXX = true;   break
+      P_START = 4;  L_START = 8;  TPOSE = false;  ALLOW0DP = false;  ALLOW1DP = false;  ALLOWXX = true;   break
     case 'RTA Strat ILs':
-      P_START = 4;  L_START = 5;  TPOSE = true;   ALLOW0DP = false;  ALLOW1DP = true;   ALLOWXX = false;  break
-    case 'Bingo ILs':
-      P_START = 3;  L_START = 8;  TPOSE = false;  ALLOW0DP = true;   ALLOW1DP = true;   ALLOWXX = false;  break
+      P_START = 4;  L_START = 5;  TPOSE = true;   ALLOW0DP = false;  ALLOW1DP = false;  ALLOWXX = false;  break
+    case 'Misc ILs':
+      P_START = 3;  L_START = 8;  TPOSE = false;  ALLOW0DP = true;   ALLOW1DP = false;  ALLOWXX = false;  break
   }
   let backendSheet = SpreadsheetApp.openById(backendSheetID)
   sheetP = backendSheet.getSheetByName(sheetName + ' P')
   sheetR = backendSheet.getSheetByName(sheetName + ' R')
   P = ((!TPOSE ? sheet.getLastRow() : sheet.getLastColumn()) + 1) - P_START
   L = ((!TPOSE ? sheet.getLastColumn() : sheet.getLastRow()) + 1) - L_START
-  levels = sheet.getRange(...toRC(1, L_START, P_START-1, L)).getDisplayValues()
+  levelHeader = sheet.getRange(...toRC(1, L_START, P_START-1, L)).getDisplayValues()
 }

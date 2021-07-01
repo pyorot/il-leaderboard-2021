@@ -2,14 +2,14 @@
 
 function ILScriptEntry(e) {
   var lock = LockService.getScriptLock()  // strict one-execution-at-a-time-lock
-  lock.waitLock(150000)                   // lock acquire timeout 150s
+  lock.waitLock(180000)                   // lock acquire timeout 3 mins
   sheet = SpreadsheetApp.getActiveSheet()
   sheetName = sheet.getSheetName()
   var range = e.range
   console.log('edit trigger: sheet',sheetName,', range',e.range,', row/col',e.range.getRow(),e.range.getColumn())
 
   // uses IL algorithms from 2021
-  if (['ILs', '120 ILs', 'RTA Strat ILs', 'Bingo ILs'].includes(sheetName)) {
+  if (['ILs', '120 ILs', 'RTA Strat ILs', 'Misc ILs'].includes(sheetName)) {
     // 1. set script parameters depending on sheet (see About.gs for what they are and their values)
     setGlobals(sheetName)
 
