@@ -26,13 +26,15 @@ function setGlobals(sheetName) {
   // 1. settings
   switch (sheetName) { // manual settings
     case 'ILs':
-      P_START = 4;  L_START = 8;  TPOSE = false;  ALLOW0DP = false;  ALLOW1DP = false;  ALLOWXX = false;  break
+      P_START = 5;  L_START = 8;  TPOSE = false;  ALLOW0DP = false;  ALLOW1DP = false;  ALLOWXX = false;  break
     case '120 ILs':
       P_START = 4;  L_START = 8;  TPOSE = false;  ALLOW0DP = false;  ALLOW1DP = false;  ALLOWXX = true;   break
     case 'RTA Strat ILs':
       P_START = 4;  L_START = 5;  TPOSE = true;   ALLOW0DP = false;  ALLOW1DP = false;  ALLOWXX = false;  break
     case 'Misc ILs':
       P_START = 3;  L_START = 8;  TPOSE = false;  ALLOW0DP = true;   ALLOW1DP = false;  ALLOWXX = false;  break
+    case 'Free ILs':
+      P_START = 3;  L_START = 8;  TPOSE = false;  ALLOW0DP = false;  ALLOW1DP = false;  ALLOWXX = false;  break
   }
   let backendSheet = SpreadsheetApp.openById(backendSheetID)
   sheetP = backendSheet.getSheetByName(sheetName + ' P')

@@ -6,8 +6,8 @@
 
 // set protection on a single row/column based on directory lookup of name and sheet mods
 function setProtectionRow() {
-  let sheetName = "Misc ILs"
-  let index = 47              // row/column number (first row/column = 1; convert letters to number for columns)
+  let sheetName = "Free ILs"
+  let index = 16               // row/column number (first row/column = 1; convert letters to number for columns)
   let transposed = false       // false if players have rows; true if players have columns
 
   let [users, mods] = getDirectory(sheetName)
@@ -45,26 +45,26 @@ function setProtectionRow() {
   console.log("editors:\n", target.getEditors().map(user => user.getEmail()))
 }
 
-// adds/removes one person to every protected range in a sheet
+// adds/removes one person to every protected range in every sheet
 function addMod() {
-  let sheetName = "Any% Best World Segments"
   let email = ""
   let remove = false // swaps to removing instead of adding
 
-  let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName)
-  for (let p of sheet.getProtections(SpreadsheetApp.ProtectionType.RANGE)) {
-    if (p.canEdit()) {
-      remove ? p.removeEditor(email) : p.addEditor(email)
-      console.log(remove ? "removed:" : "added:", p.getDescription())
-    } else {
-      console.log("error: couldn't edit protected range", p.getDescription())
+  for (let sheet of SpreadsheetApp.getActiveSpreadsheet().getSheets()) {
+    for (let p of sheet.getProtections(SpreadsheetApp.ProtectionType.RANGE)) {
+      if (p.canEdit()) {
+        remove ? p.removeEditor(email) : p.addEditor(email)
+        console.log(remove ? "removed:" : "added:", p.getDescription(), "@", sheet.getName())
+      } else {
+        console.log("error: couldn't edit protected range", p.getDescription(), "@", sheet.getName())
+      }
     }
   }
 }
 
 // reassigning all protections is slow and can get messed up on timeout; gotta verify
 function verifyProtections() {
-  let sheetName = ""
+  let sheetName = "Free ILs"
 
   let [users, mods] = getDirectory(sheetName)
   // iterate thru protections
@@ -147,15 +147,13 @@ function getDirectory(sheetName) {
 // this only needs to be run when sheet dimensions are changed
 // if the script goes past the end of data (e.g. cos crap at end of Bingo sheet), click Stop
 function initProtections() {
-  let sheetName = "RTA Strat ILs"
+  let sheetName = "ILs"
   let firstIndex = 4     // number of first row/column with data
-  let transposed = true  // false = row per player; true = column per player
+  let transposed = false // false = row per player; true = column per player
 
   let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName)
   for (let p of sheet.getProtections(SpreadsheetApp.ProtectionType.RANGE)) {
-    if (p.canEdit()) {
-      p.remove()
-    }
+    if (p.canEdit()) {p.remove()}
   }
   console.log("cleared all protected series")
 
@@ -179,7 +177,7 @@ function initProtections() {
 
 // takes all existing protected ranges and assigns the correct user/mods to them based on the backend directory
 function reassignProtections() {
-  let sheetName = "RTA Strat ILs"
+  let sheetName = "ILs"
 
   let [users, mods] = getDirectory(sheetName)
   // assign email addresses to ranges

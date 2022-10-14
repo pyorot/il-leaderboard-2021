@@ -37,6 +37,9 @@ function isReverseLevel(l) {
       for (let k = l; group === ""; k--, group = levelHeader[0][k]) {} // seek backwards in merged cell to get value
       return group == "Hidden Reds Hoverless"
     
+    case 'Free ILs':
+      return l != 2 // quick fix
+    
     default: throw `unknown sheet: "${sheetName}"`
   }
 }

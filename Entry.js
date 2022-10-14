@@ -9,7 +9,7 @@ function ILScriptEntry(e) {
   console.log('edit trigger: sheet',sheetName,', range',e.range,', row/col',e.range.getRow(),e.range.getColumn())
 
   // uses IL algorithms from 2021
-  if (['ILs', '120 ILs', 'RTA Strat ILs', 'Misc ILs'].includes(sheetName)) {
+  if (['ILs', '120 ILs', 'RTA Strat ILs', 'Misc ILs', 'Free ILs'].includes(sheetName)) {
     // 1. set script parameters depending on sheet (see About.gs for what they are and their values)
     setGlobals(sheetName)
 
@@ -27,10 +27,13 @@ function ILScriptEntry(e) {
     else if(toL(range) >= 0 && toP(range) >= 0){ // player edits of single cells (4s)
       updateLevel(range)
     }
+
+    lock.releaseLock()  // release lock after execution
   }
 
   // uses mostly self-contained scripts from 2018 (Bolder120Segs and BolderAnySegs)
   else {
+    lock.releaseLock()  // release lock before execution (speeds up old code, which isn't designed around locking)
     switch (sheetName) {
       case 'Any% Best Segments':
         if(range.getColumn() > 2){
@@ -44,6 +47,4 @@ function ILScriptEntry(e) {
         break;
     }  
   }
-
-  lock.releaseLock()
 }

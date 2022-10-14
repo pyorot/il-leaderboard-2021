@@ -7,8 +7,9 @@ function parseTimeTest() {
 
 // expected result: [ [2, 3, 1, undefined], [2, 1, undefined, undefined] ]
 function calcPointsAndRanksTest() {
+  sheetName = 'ILs'
   P = 4
-  let rangeValues = ['41.16', '42.02', '37.75', 'p' ]
+  let rangeValues = ['41.16', '1:02.02', '37.75', 'p' ]
   let rangeLinks =  ['aa'   , 'bb'   , null   , null]
   let reversed = true
   console.log(calcPointsAndRanks(rangeValues, rangeLinks, reversed))

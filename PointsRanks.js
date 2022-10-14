@@ -24,24 +24,46 @@ function calcPointsAndRanks(rangeValues, rangeLinks, reversed) {
   series.sort(reversed ? (a,b) => a.time - b.time : (a,b) => b.time - a.time) // worst to best
 
   // 2. calculate points; generate points array
+  let K = series.length
   let rangePoints = newList(P)
   let prev = null
-  for (let k=0; k<series.length; k++) { // points = k+1 of left-most member of each tied group
+  for (let k=0; k<K; k++) { // points = k+1 of left-most member of each tied group
     rangePoints[series[k].index] = series[k].time != prev ? k+1 : rangePoints[series[k-1].index]
     prev = series[k].time
   }
 
+  // new cutoff time code
+  let cutoffTime = ''
+  if (sheetName == 'ILs') {
+    let rank = 0
+    prev = null
+    for (let k=K-1; k>=0; k--) { // rank = K-k of right-most member of each tied group
+      rank = series[k].time != prev ? K-k : rank
+      if (rank <= 1 + 0.15*(K+1) || rank <= 3) {
+        cutoffTime = series[k].time
+      } else {
+        if (cutoffTime >= 60) {
+          cutoffTime = Math.floor(cutoffTime/60) + ":" + (cutoffTime % 60).toFixed(2).padStart(5,'0')
+        } else {
+          cutoffTime = cutoffTime.toFixed(2)
+        }
+        break
+      }
+      prev = series[k].time
+    }
+  }
+
   // 3. filter to linked videos; calculate ranks; generate ranks array
   let seriesLinked = series.filter(item => item.link != null)
-  let K = seriesLinked.length
-  let rangeRanks = newList(P)
+  K = seriesLinked.length
+  let rangeRanksVideo = newList(P)
   prev = null
   for (let k=K-1; k>=0; k--) { // rank = K-k of right-most member of each tied group
-    rangeRanks[seriesLinked[k].index] = seriesLinked[k].time != prev ? K-k : rangeRanks[seriesLinked[k+1].index]
+    rangeRanksVideo[seriesLinked[k].index] = seriesLinked[k].time != prev ? K-k : rangeRanksVideo[seriesLinked[k+1].index]
     prev = seriesLinked[k].time
   }
 
-  return [rangePoints, rangeRanks]
+  return [rangePoints, rangeRanksVideo, cutoffTime]
 }
 
 
@@ -66,7 +88,7 @@ function updateLevel(cell) {
   let rangeColors = toSeries(range.getTextStyles()).map(x => x.getForegroundColor())  // 1 api call/cell (slow)
 
   // 2. process data
-  let [rangePoints, rangeRanks] = calcPointsAndRanks(rangeValues, rangeLinks, isReverseLevel(l))
+  let [rangePoints, rangeRanks, cutoffTime] = calcPointsAndRanks(rangeValues, rangeLinks, isReverseLevel(l))
 
   // 3. highlighting
   rangeColors[p0] = null // this forces reformat on edited cell; need this cos e.g. https://imgur.com/VQTsYs6
@@ -79,6 +101,7 @@ function updateLevel(cell) {
     sheet.getRange(...toRC(P_START, 2, P, L_START-2)).setValues(
       sheetP.getRange(...toRC(2, 2, P, L_START-2)).getDisplayValues())
   }
+  if (sheetName == 'ILs') { sheet.getRange(4, L_START+l, 1, 1).setValue(cutoffTime) }
 }
 
 
@@ -97,10 +120,11 @@ function updateSheet() {
 
   // 3. process data
   let [fullRangePoints, fullRangeRanks] = [newTable(...toRC(P,L)), newTable(...toRC(P,L))]
+  let cutoffTimes = newTable(...toRC(1,L))
   for (let l = 0; l < L; l++) {
     let rangeValues = !TPOSE ? fullRangeValues.map(row => row[l]) : fullRangeValues[l]
     let rangeLinks =  !TPOSE ? fullRangeLinks.map(row => row[l])  : fullRangeLinks[l]
-    let [rangePoints, rangeRanks] = calcPointsAndRanks(rangeValues, rangeLinks, isReverseLevel(l))
+    let [rangePoints, rangeRanks, cutoffTime] = calcPointsAndRanks(rangeValues, rangeLinks, isReverseLevel(l))
     if (!TPOSE) {
       for (let p = 0; p < P; p++) {
         fullRangePoints[p][l] = rangePoints[p]
@@ -110,6 +134,7 @@ function updateSheet() {
       fullRangePoints[l] = rangePoints
       fullRangeRanks[l] = rangeRanks
     }
+    cutoffTimes[0][l] = cutoffTime
   }
 
   // 4. update stats
@@ -119,6 +144,7 @@ function updateSheet() {
     sheet.getRange(...toRC(P_START, 2, P, L_START-2)).setValues(
       sheetP.getRange(...toRC(2, 2, P, L_START-2)).getDisplayValues())
   }
+  if (sheetName == 'ILs') { sheet.getRange(4, L_START, 1, L).setValues(cutoffTimes) }
 }
 
 

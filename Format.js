@@ -37,7 +37,7 @@ function formatCell(p, l, color) {
   cell.setFontWeight(bold ? 'bold' : 'normal')
   // cell.setFontLine(underline ? 'underline' : 'none')                         // * see note at bottom
   cell.setBorder(null,null,(color==COLOR_1?true:false),null,false,false,COLOR_DEFAULT,BORDER_BOLD)
-  // Logger.log(`formatted cell (${i},${j}): ${color}, ${bold}`)
+  Logger.log(`formatted cell (${i},${j}): ${color}, ${bold}`)
 }
 
 // * don't force underlining cos we need to be able to spot glitched (undetected) links
