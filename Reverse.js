@@ -1,15 +1,16 @@
+// l is the index of the level (leftmost/topmost = 0) -- effectively the column number but shifted
+// also depends on sheetName, levelHeader (a table of cells representing the level header)
+
 function isReverseLevel(l) {
+  let world, episode, sublevel, shine, strat, group
   switch (sheetName) {
     case 'ILs':
     case '120 ILs':
-      let world = levelHeader[0][l]
+      world = levelHeader[0][l]
       for (let k = l; world === ""; k--, world = levelHeader[0][k]) {} // seek backwards in merged cell to get value
-      let episode = levelHeader[1][l]
+      episode = levelHeader[1][l]
       for (let k = l; episode === ""; k--, episode = levelHeader[1][k]) {}
-      let sublevel = levelHeader[2][l]
-      
-      console.log(world, episode, sublevel)
-      
+            
       switch(world){
         case "Bianco Hills":                 return ["Ep. 3 Reds", "Ep. 6 Reds"].includes(episode)
         case "Ricco Harbor":                 return ["Ep. 6",      "Ep. 4 Reds"].includes(episode)
@@ -23,22 +24,25 @@ function isReverseLevel(l) {
       }
 
     case 'RTA Strat ILs':
-      let shine = levelHeader[l][0]
+      shine = levelHeader[l][0]
       for (let k = l; shine === ""; k--, shine = levelHeader[k][0]) {} // seek upwards to get non-empty row value
       shine = shine.trim()
-      let strat = levelHeader[l][1]; strat = strat.substring(strat.indexOf(']')+2).trim()
+      strat = levelHeader[l][1]; strat = strat.substring(strat.indexOf(']')+2).trim()
       return shine.substring(0,4) == "Reds"
         || ['Airstrip Reds (+ 99 coins)', 'Box Game 1', 'Box Game 2'].includes(shine)
         || (shine == 'Episode 6' && ['boomer route', 'normal route', 'no RNG spam-spray unlock'].includes(strat))
         || (shine == 'Episode 8' && strat == 'Paper route')
     
     case 'Misc ILs':
-      let group = levelHeader[0][l]
+      group = levelHeader[0][l]
       for (let k = l; group === ""; k--, group = levelHeader[0][k]) {} // seek backwards in merged cell to get value
       return group == "Hidden Reds Hoverless"
     
     case 'Free ILs':
-      return l != 2 // quick fix
+      world = levelHeader[0][l]
+      for (let k = l; world === ""; k--, world = levelHeader[0][k]) {} // seek backwards in merged cell to get value
+      episode = levelHeader[1][l]
+      return world === "Sirena Beach" && ["Ep. 8",      "Ep. 2 Reds"].includes(episode)
     
     default: throw `unknown sheet: "${sheetName}"`
   }

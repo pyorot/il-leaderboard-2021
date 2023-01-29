@@ -1,8 +1,6 @@
 // Entrypoint of the script; picks which algorithm to run
 
 function ILScriptEntry(e) {
-  var lock = LockService.getScriptLock()  // strict one-execution-at-a-time-lock
-  lock.waitLock(180000)                   // lock acquire timeout 3 mins
   sheet = SpreadsheetApp.getActiveSheet()
   sheetName = sheet.getSheetName()
   var range = e.range
@@ -10,6 +8,10 @@ function ILScriptEntry(e) {
 
   // uses IL algorithms from 2021
   if (['ILs', '120 ILs', 'RTA Strat ILs', 'Misc ILs', 'Free ILs'].includes(sheetName)) {
+    var lock = LockService.getScriptLock()                                // strict one-execution-at-a-time-lock
+    while (true) { try {lock.waitLock(180000); break} catch (err){} }     // lock acquire timeout 3 mins
+    console.log('locked')
+
     // 1. set script parameters depending on sheet (see About.gs for what they are and their values)
     setGlobals(sheetName)
 
@@ -28,23 +30,16 @@ function ILScriptEntry(e) {
       updateLevel(range)
     }
 
-    lock.releaseLock()  // release lock after execution
+    SpreadsheetApp.flush() // commit changes before lock is automatically released by script finish
+    console.log('flushed')
+    while (true) { try {lock.releaseLock(); break} catch (err){} } // return auto-release can throw believe it or not
   }
 
   // uses mostly self-contained scripts from 2018 (Bolder120Segs and BolderAnySegs)
   else {
-    lock.releaseLock()  // release lock before execution (speeds up old code, which isn't designed around locking)
     switch (sheetName) {
-      case 'Any% Best Segments':
-        if(range.getColumn() > 2){
-          AnypBolder(sheet, range);
-        }
-        break;
-      case '120 Best Segments':
-        if(range.getColumn() > 1){
-          OneTwentyBolder(sheet, range);
-        }
-        break;
+      case 'Any% Best Segments':  if(range.getColumn() > 2){ return AnypBolder(sheet, range) } break
+      case '120 Best Segments':   if(range.getColumn() > 1){ return OneTwentyBolder(sheet, range) } break
     }  
   }
 }

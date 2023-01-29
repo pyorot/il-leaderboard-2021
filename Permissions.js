@@ -45,19 +45,19 @@ function setProtectionRow() {
   console.log("editors:\n", target.getEditors().map(user => user.getEmail()))
 }
 
-// adds/removes one person to every protected range in every sheet
+// adds/removes one person to every protected range in a sheet
 function addMod() {
   let email = ""
   let remove = false // swaps to removing instead of adding
+  let sheetName = "120 ILs"
 
-  for (let sheet of SpreadsheetApp.getActiveSpreadsheet().getSheets()) {
-    for (let p of sheet.getProtections(SpreadsheetApp.ProtectionType.RANGE)) {
-      if (p.canEdit()) {
-        remove ? p.removeEditor(email) : p.addEditor(email)
-        console.log(remove ? "removed:" : "added:", p.getDescription(), "@", sheet.getName())
-      } else {
-        console.log("error: couldn't edit protected range", p.getDescription(), "@", sheet.getName())
-      }
+  let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName)
+  for (let p of sheet.getProtections(SpreadsheetApp.ProtectionType.RANGE)) {
+    if (p.canEdit()) {
+      remove ? p.removeEditor(email) : p.addEditor(email)
+      console.log(remove ? "removed:" : "added:", p.getDescription(), "@", sheet.getName())
+    } else {
+      console.log("error: couldn't edit protected range", p.getDescription(), "@", sheet.getName())
     }
   }
 }
@@ -178,6 +178,7 @@ function initProtections() {
 // takes all existing protected ranges and assigns the correct user/mods to them based on the backend directory
 function reassignProtections() {
   let sheetName = "ILs"
+  let skipExisting = false // if true, script won't touch already-restricted ranges, else it'll redo them
 
   let [users, mods] = getDirectory(sheetName)
   // assign email addresses to ranges
@@ -185,7 +186,7 @@ function reassignProtections() {
   for (let p of sheet.getProtections(SpreadsheetApp.ProtectionType.RANGE)) {
     if (p.canEdit()) {
       let previousEditors = p.getEditors()
-      if (previousEditors.length < 100) { continue } // skip ranges that have already been restricted
+      if (skipExisting) { if (previousEditors.length < 100) { continue } } // skip already-restricted ranges
       p.removeEditors(previousEditors)
       if (p.getDescription() == 'header') {
         p.addEditors(mods)
