@@ -1,4 +1,10 @@
 # IL Scripts
+
+**Version Notice**  
+This code was last published on 2021/07/01 (tagged here as a release); since then, some changes have been made, notably the addition of a row/column of threshold (video requirement) times for every level in specifically the "ILs" sheet, as well as code for an [IL verification sheet](https://docs.google.com/spreadsheets/d/1bMud9itn7NLJo82mWzv9Z16i8Q6n9aYbBqoDynZE854). This code is not generalised, and the below readme is for the 2021/07/01 version.
+
+---
+
 This is a Google Apps Script project originally written and used for the [Super Mario Sunshine Individual Level Leaderboards](https://docs.google.com/spreadsheets/d/12wDUXjLqmcUuWSEXWc1fHNJc24KlfyCh0pvibZYEQM0) to automate highlighting and data calculations like the points ranking, as well as to manage protected ranges so players can only edit their own rows/columns. It uses two auxiliary sheets – a [backend](https://docs.google.com/spreadsheets/d/1TmUN3wpUNRCEVTKu1rBXVXtF3KRerCENoIlEhoFCNng) to cache calculated points/ranks and a directory to store user aliases and Google account email addresses.
 
 ## Google Apps Script Setup
