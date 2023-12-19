@@ -1,5 +1,8 @@
 # IL Scripts
 
+**Archival Notice**  
+This project was reinvented into [https://github.com/pyorot/il-leaderboard-2023](**il-leaderboard-2023**), a comprehensive set of scripts for an IL leaderboard.
+
 **Version Notice**  
 This code was last published on 2021/07/01 (tagged here as a release); since then, some changes have been made, notably the addition of a row/column of threshold (video requirement) times for every level in specifically the "ILs" sheet, as well as code for an [IL verification sheet](https://docs.google.com/spreadsheets/d/1bMud9itn7NLJo82mWzv9Z16i8Q6n9aYbBqoDynZE854). This code is not generalised, and the below readme is for the 2021/07/01 version.
 
